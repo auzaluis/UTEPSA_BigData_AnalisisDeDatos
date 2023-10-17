@@ -1,5 +1,7 @@
 # UTEPSA_BigData_AnalisisDeDatos
 * Extracción de datos
+  * Local
+  * En línea
 * Tipos de variables
   * Vectores
   * Data Frames
