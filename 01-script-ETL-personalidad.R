@@ -165,7 +165,7 @@ for (frase in frases) {
 # Convirtiendo el data frame en tibble
 DF5 <- DF5 %>% as_tibble()
 
-### Función select: columnas ----
+## Función select: columnas ----
 DF5 %>% select(Sexo)
 DF5 %>% select(Sexo, `Escribe tu edad exacta`)
 DF5 %>% select(-`Marca temporal`)
@@ -175,7 +175,7 @@ DF5 %>% select(contains("edad"))
 
 
 
-### Función filter: filas ----
+## Función filter: filas ----
 
 DF5 %>% filter(Sexo == "Hombre")
 
@@ -205,6 +205,86 @@ DF5 %>% filter(`Escribe tu edad exacta` >= 18,
 DF5 %>% filter(`Escribe tu edad exacta` >= 18,
                `Escribe tu edad exacta` <= 21,
                Sexo == "Mujer")
+
+
+
+## Cambio de nombre de columnas ----
+DF6 <- DF5
+
+
+
+### APPS
+#### Paso1: Crear un vector con los nuevos nombres
+apps <- c("TikTok", "Instagram", "Facebook", "YouTube")
+
+#### Paso2: Reemplazar por los valores del nuevo vector
+colnames(DF6)[32:35] <- apps
+
+
+
+### Frases
+#### Paso1: Crear un vector con los nuevos nombres
+frases2 <- frases %>% 
+  as_tibble() %>% 
+  
+  separate(col = "value",
+           into = c("No sirve", "Sirve"),
+           sep = "\\[") %>% 
+  select(Sirve) %>% 
+  
+  separate(col = "Sirve",
+           into = c("Sirve", "No sirve"),
+           sep = "\\]") %>% 
+  select(Sirve) %>% 
+  
+  as_vector()
+
+
+
+#### Paso2: Reemplazar por los valores del nuevo vector
+colnames(DF6)[7:30] <- frases2
+
+
+
+## Pivotado de base ----
+
+#### Pivot longer
+
+DF7 <- DF6 %>% 
+  select(`Marca temporal`, Sexo, edadGR, all_of(apps)) %>% 
+  pivot_longer(cols = apps,
+               names_to = "app",
+               values_to = "time")
+
+#### Pivot wider
+
+DF8 <- DF7 %>% 
+  pivot_wider(names_from = "app",
+              values_from = "time")
+
+
+
+# Detección de outliers ----
+
+## (paréntesis) Transformar las horas a número
+# strsplit separa los textos
+strsplit(x = DF7$time,
+         split = ":") %>% head()
+
+# transformación
+DF7$time <- sapply(
+  
+  X = strsplit(x = DF7$time,
+               split = ":"),
+  
+  function(x){
+    
+    x <- as.numeric(x)
+    x[1] + x[2]/60 + x[3]/60^2
+    
+  }
+  
+)
 
 
 
