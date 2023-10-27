@@ -287,9 +287,88 @@ DF7$time <- sapply(
 )
 
 
+## Detección gráfica
+
+# Boxplot (feo)
+boxplot(DF7$time)
+
+# Boxplot bonito
+# install.packages("plotly")
+library(plotly)
+
+ggplotly(
+  
+  # definimos el df con el que vamos a trabajar
+  DF7 %>% 
+    
+    # dibujar un lienzo
+    ggplot(mapping = aes(x = app,
+                         y = time,
+                         fill = app)) +
+    
+    # tipo de gráfico
+    geom_boxplot() +
+    
+    # faceting
+    # facet_wrap(~ app, nrow = 1) +
+    
+    # modificando el tema
+    theme_minimal() +
+    
+    # otras opciones de tema
+    theme(legend.position = "none")
+  
+)
 
 
 
+DF9 <- DF7 %>% 
+  
+  # defininendo los outliers
+  mutate(
+    outlier = case_when(
+      app == "Facebook"  & time > 10    ~ "outlier",
+      app == "Instagram" & time > 13.28 ~ "outlier",
+      app == "TikTok"    & time > 15.58 ~ "outlier",
+      app == "YouTube"   & time > 8.18  ~ "outlier",
+      .default = "No outlier"
+    )
+  ) %>% 
+  
+  # separando el análisis por app
+  group_by(app) %>% 
+  
+  # imputando/reemplazando los outliers por la media
+  mutate(time2 = ifelse(test = outlier == "outlier",
+                        yes = mean(time, na.rm = T),
+                        no = time)) %>% 
+  
+  ungroup()
+
+
+
+# Uso de count, group_by y summarise
+
+DF9 %>%
+  group_by(app, Sexo) %>% 
+  summarise(conteo = n(),
+            promedio = mean(time2),
+            desv = sd(time2))
+
+
+
+DF9 %>% 
+  count(edadGR) %>% 
+  # arrange no ordena gráficas
+  arrange(desc(n)) %>% 
+  mutate(prop = n/sum(n))
+
+
+DF9 %>% 
+  count(Sexo, edadGR) %>% 
+  group_by(Sexo) %>% 
+  mutate(prop = n/sum(n)) %>% 
+  ungroup()
 
 
 
