@@ -214,9 +214,32 @@ tabla_concat %>%
 
 
 
+# Mapa perceptual: Análisis de correspondencias
+
+## Tabla de frecuencias
+
+DF4 <- DF3 %>% 
+  select(`Precio razonable`:`Variedad de maduración (años)`) %>% 
+  pivot_longer(cols = everything(),
+               names_to = "atributo",
+               values_to = "marca")
+
+table_DF4 <- table(DF4)
 
 
 
+## Tablas de porcentajes
+
+round(prop.table(table_DF4, margin = 1), digits = 2)
+round(prop.table(table_DF4, margin = 2), digits = 2)
+
+
+
+## Análisis de correpondencias
+# install.packages("FactoMineR")
+library(FactoMineR)
+
+FactoMineR::CA(table_DF4)
 
 
 
